@@ -1,0 +1,54 @@
+{
+  "products": [
+    {
+      "id": "STAND-001",
+      "name": "Ergo Laptop Stand",
+      "category": "desk",
+      "description": "Improves posture and screen height for long work sessions.",
+      "price": 39.0,
+      "currency": "USD",
+      "available": 25,
+      "features": ["ergonomic", "adjustable", "comfort", "productivity"]
+    },
+    {
+      "id": "MOUSE-002",
+      "name": "Wireless Mouse",
+      "category": "accessory",
+      "description": "Comfortable daily-use mouse with quiet clicks.",
+      "price": 29.0,
+      "currency": "USD",
+      "available": 40,
+      "features": ["ergonomic", "wireless", "comfort"]
+    },
+    {
+      "id": "KEYBOARD-003",
+      "name": "Mechanical Keyboard",
+      "category": "accessory",
+      "description": "Responsive keyboard built for productivity and typing comfort.",
+      "price": 59.0,
+      "currency": "USD",
+      "available": 30,
+      "features": ["productivity", "typing", "comfort"]
+    },
+    {
+      "id": "MONITOR-004",
+      "name": "21.5-inch Monitor",
+      "category": "display",
+      "description": "Adds extra display area for multitasking.",
+      "price": 149.0,
+      "currency": "USD",
+      "available": 12,
+      "features": ["productivity", "screen", "workspace"]
+    },
+    {
+      "id": "CHAIR-005",
+      "name": "Comfort Chair",
+      "category": "furniture",
+      "description": "Supportive seating for daily desk work.",
+      "price": 120.0,
+      "currency": "USD",
+      "available": 18,
+      "features": ["comfort", "ergonomic", "office"]
+    }
+  ]
+}
