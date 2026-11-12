@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { fetchProducts, sendChatMessage, submitCart } from "@/lib/api";
+import { createPayPalOrder, fetchProducts, sendChatMessage, submitCart } from "@/lib/api";
 import type { Product } from "@/lib/types";
 
 const DEMO_MESSAGE = "I need a work-from-home setup under $150. Prioritize comfort and productivity.";
@@ -47,18 +47,35 @@ export default function HomePage() {
 
   const handleApprove = async () => {
     if (!response) return;
-    const chosenProducts = recommendedProducts.map((product) => ({
-      product_id: product.id,
-      quantity: selected[product.id] || 1,
-    }));
+    setLoading(true);
+    setError(null);
 
-    const result = await submitCart(1, chosenProducts, Number(response.budget.amount));
-    if (!result.allowed) {
-      setError("This cart exceeds the budget; adjust the selection.");
-      return;
+    try {
+      const chosenProducts = recommendedProducts.map((product) => ({
+        product_id: product.id,
+        quantity: selected[product.id] || 1,
+      }));
+
+      const result = await submitCart(1, chosenProducts, Number(response.budget.amount));
+      if (!result.allowed) {
+        setError("This cart exceeds the budget; adjust the selection.");
+        return;
+      }
+
+      const orderResult = await createPayPalOrder(chosenProducts, result.total, result.currency);
+      if (!orderResult.approval_url) {
+        throw new Error("PayPal approval URL was not returned by the server.");
+      }
+
+      sessionStorage.setItem("agentpay_order_id", orderResult.order_id);
+      sessionStorage.setItem("agentpay_expected_amount", String(result.total));
+      sessionStorage.setItem("agentpay_expected_currency", result.currency || "USD");
+      window.location.assign(orderResult.approval_url);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unable to prepare PayPal checkout.");
+    } finally {
+      setLoading(false);
     }
-
-    alert(`Approved cart ready. Total: $${result.total.toFixed(2)} (${result.message})`);
   };
 
   return (

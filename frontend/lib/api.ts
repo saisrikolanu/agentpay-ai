@@ -29,21 +29,22 @@ export async function fetchProducts() {
 }
 
 export async function submitCart(sessionId: number, products: Array<{ product_id: string; quantity: number }>, budget: number) {
-  return request<{ cart_id: string; total: number; allowed: boolean; message: string; items: Array<{ product_id: string; price: number; quantity: number }> }>("/api/carts", {
+  return request<{ cart_id: string; total: number; currency: string; allowed: boolean; message: string; items: Array<{ product_id: string; price: number; quantity: number }> }>('/api/carts', {
     method: "POST",
     body: JSON.stringify({ session_id: sessionId, products, budget }),
   });
 }
 
-export async function createPayPalOrder(total: number) {
-  return request<{ order_id: string; status: string; amount: string; currency: string }>("/api/paypal/orders", {
+export async function createPayPalOrder(items: Array<{ product_id: string; quantity: number }>, expectedAmount?: number, expectedCurrency = "USD") {
+  return request<{ order_id: string; status: string; amount: string; currency: string; approval_url?: string }> ("/api/paypal/orders", {
     method: "POST",
-    body: JSON.stringify({ total }),
+    body: JSON.stringify({ items, expected_amount: expectedAmount, expected_currency: expectedCurrency }),
   });
 }
 
-export async function capturePayPalOrder(orderId: string) {
+export async function capturePayPalOrder(orderId: string, expectedAmount?: number | string, expectedCurrency = "USD") {
   return request<{ order_id: string; capture_id: string; status: string; amount: string; currency: string }>(`/api/paypal/orders/${orderId}/capture`, {
     method: "POST",
+    body: JSON.stringify({ expected_amount: expectedAmount, expected_currency: expectedCurrency }),
   });
 }

@@ -29,38 +29,63 @@ class ShoppingAgent:
     def recommend_items(self, items: list[dict], budget: float, preferences: list[str]) -> dict[str, Any]:
         ranked = []
         for item in items:
-            text = f"{item['name']} {item['category']} {' '.join(item.get('features', []))}".lower()
-            score = item["price"] <= budget
+            price = float(item.get("price", 0))
+            text = f"{item.get('name', '')} {item.get('category', '')} {' '.join(item.get('features', []))}".lower()
+            score = 0
+            if price <= budget:
+                score += 2
             for preference in preferences:
                 if preference.lower() in text:
-                    score += 1
-            if item["category"].lower() == "desk":
+                    score += 2
+            if item.get("category", "").lower() == "desk":
                 score += 1
-            ranked.append({"item": item, "score": score})
+            if score > 0:
+                ranked.append({"item": item, "score": score, "price": price})
 
-        ranked.sort(key=lambda row: (-row["score"], row["item"]["price"]))
+        ranked.sort(key=lambda row: (-row["score"], row["price"]))
 
         chosen: list[dict] = []
         total = 0.0
         for row in ranked:
             item = row["item"]
-            if total + float(item["price"]) <= budget:
+            item_price = float(item.get("price", 0))
+            if total + item_price <= budget:
                 chosen.append(item)
-                total += float(item["price"])
+                total += item_price
             if len(chosen) >= 3:
                 break
 
+        if not chosen and ranked:
+            for row in ranked[:3]:
+                item = row["item"]
+                if float(item.get("price", 0)) <= budget:
+                    chosen.append(item)
+                    total += float(item.get("price", 0))
+                if len(chosen) >= 3:
+                    break
+
         if not chosen:
-            chosen = ranked[:3]
-            total = sum(float(item["item"]["price"]) for item in chosen)
+            return {
+                "items": [],
+                "total": 0.0,
+                "recommendations": [],
+                "explanation": "No products in the current catalog match your request and fit within the available budget.",
+            }
 
         recommendations = [
-            {"product_id": item["id"], "reason": "Fits the budget and supports the user’s comfort/productivity goals."}
+            {
+                "product_id": item["id"],
+                "reason": (
+                    "Fits the budget and aligns with the user’s ergonomic and productivity preferences."
+                    if any(pref.lower() in item.get("features", []) or pref.lower() in item.get("name", "").lower() for pref in preferences)
+                    else "Fits the budget and supports the shopping request."
+                ),
+            }
             for item in chosen
         ]
         return {
             "items": chosen,
             "total": round(total, 2),
             "recommendations": recommendations,
-            "explanation": "These products balance comfort, productivity, and spending constraints.",
+            "explanation": "These products match your work-from-home needs while staying within budget.",
         }

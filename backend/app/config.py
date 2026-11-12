@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: str = ""
     OPENAI_MODEL: str = "gpt-4o-mini"
     PAYPAL_ENV: str = "sandbox"
+    PAYPAL_BASE_URL: str = "https://api-m.sandbox.paypal.com"
     PAYPAL_CLIENT_ID: str = ""
     PAYPAL_CLIENT_SECRET: str = ""
     FRONTEND_ORIGIN: str = "http://localhost:3000"

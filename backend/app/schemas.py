@@ -40,6 +40,7 @@ class CartItemRequest(BaseModel):
 class CartRequest(BaseModel):
     session_id: int
     products: List[CartItemRequest]
+    budget: Optional[float] = None
 
 
 class CartResponse(BaseModel):
@@ -50,3 +51,17 @@ class CartResponse(BaseModel):
     currency: str = "USD"
     allowed: bool
     message: str
+
+
+class PayPalOrderRequest(BaseModel):
+    items: List[CartItemRequest]
+    expected_amount: Optional[float] = None
+    expected_currency: str = "USD"
+    return_url: Optional[str] = None
+    cancel_url: Optional[str] = None
+
+
+class PayPalCaptureRequest(BaseModel):
+    expected_amount: Optional[float] = None
+    expected_currency: str = "USD"
+    idempotency_key: Optional[str] = None
